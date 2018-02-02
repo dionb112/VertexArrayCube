@@ -117,6 +117,8 @@ void Game::run()
 			{
 				isRunning = false;
 			}
+
+
 		}
 		update();
 		render();
@@ -138,6 +140,16 @@ void Game::initialize()
 void Game::update()
 {
 	elapsed = clock.getElapsedTime();
+	for (int i = 0; i < 36; i=i+3)
+	{
+		MyVector3D vector{ vertices[i], vertices[i + 1], vertices[i + 2] };
+		vector = MyMatrix3::rotationY(1) * vector;
+
+
+		vertices[i] = vector.X();
+		vertices[i + 1] = vector.Y();
+		vertices[i + 2] = vector.Z();
+	}
 
 	cout << "Update up" << endl;
 }
