@@ -5,7 +5,7 @@ int current = 1;
 
 Game::Game() : window(VideoMode(800, 600), "OpenGL Cube")
 {
-
+	getCentre();
 }
 
 Game::~Game() {}
@@ -126,29 +126,56 @@ void Game::run()
 
 }
 
+void Game::getCentre()
+{
+	// get centre of whole cube at once !
+	for (int i = 0; i < 118; i = i + 3)
+	{
+		MyVector3D centreVector{ vertices[i], vertices[i + 1], vertices[i + 2] };
+		m_centre += centreVector;
+	}
+	m_centre = m_centre / 36;
+}
+
 void Game::initialize()
 {
 	isRunning = true;
 
-	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0, window.getSize().x / window.getSize().y, 1.0, 500.0);
 	glMatrixMode(GL_MODELVIEW);
 }
 
+// look at tangrams to see how to properly use the matrix rotations
 void Game::update()
 {
 	elapsed = clock.getElapsedTime();
-	for (int i = 0; i < 36; i=i+3)
+	for (int i = 0; i < 118; i=i+3)
 	{
 		MyVector3D vector{ vertices[i], vertices[i + 1], vertices[i + 2] };
-		vector = MyMatrix3::rotationY(1) * vector;
 
+		// move to origin of shape
+		vector = MyMatrix3::translation(-m_centre) * vector;
+
+
+		// rotate
+		vector = MyMatrix3::rotationZ(0.001) * vector;
+		// vector = MyMatrix3::rotationX(0.001) * vector;
+		// vector = MyMatrix3::rotationY(0.001) * vector;
+
+		// move back
+		vector = MyMatrix3::translation(m_centre) * vector;
+
+		// scale
+		double scalingFactor(1);
+		MyMatrix3 standardScale = MyMatrix3::scale(scalingFactor);
+		vector = standardScale * vector;
 
 		vertices[i] = vector.X();
 		vertices[i + 1] = vector.Y();
 		vertices[i + 2] = vector.Z();
+
 	}
 
 	cout << "Update up" << endl;
@@ -158,9 +185,10 @@ void Game::render()
 {
 	cout << "Drawing" << endl;
 
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
-
 
 	glVertexPointer(3, GL_FLOAT, 0, &vertices);
 	glColorPointer(3, GL_FLOAT, 0, &colors);

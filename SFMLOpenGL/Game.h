@@ -16,7 +16,9 @@ public:
 	Game();
 	~Game();
 	void run();
+	void getCentre();
 private:
+	MyVector3D m_centre;
 	Window window;
 	bool isRunning = false;
 	void initialize();
